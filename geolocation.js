@@ -24,7 +24,8 @@ exports.obfuscateLocation = function(rawLocation){
 	//	If none of those tests succeed, the location type is deemed invalid.
 function determineLocationType (rawLocation){
 	let location = {
-		raw: rawLocation.replace(/[\(\)]/g,""),	//Remove "(" and ")"
+		//Remove "(" and ")"
+		raw: rawLocation ? rawLocation.replace(/[\(\)]/g,""): "",	
 		type: "INVALID"
 	}
 	if (location.raw === null){
@@ -35,7 +36,8 @@ function determineLocationType (rawLocation){
 	}
 	else {
 		if(!location.raw.includes(",") ){
-			location.raw = location.raw.replace(" ",",")		//Try injecting a comma in case lat and long are separated by a space
+			//Try injecting a comma in case lat and long are separated by a space
+			location.raw = location.raw.replace(" ",",")		
 		}
 		if(isNumber(location.raw.split(",")[0]) && isNumber(location.raw.split(",")[1]))
 		{
