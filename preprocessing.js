@@ -5,6 +5,8 @@ const geolocation = require('./geolocation.js')
 let fileName = 'output/jsonData'
 let fileIndex = 0
 
+const filterData = false;
+
 loadFile()
 
 function loadFile(){
@@ -21,7 +23,7 @@ function loadFile(){
 function parseData(source){
 	const data = d3.csvParse(source)
 	console.log("#Entries in data: ", data.length)
-	const filterData = true;
+	//If filtering is on, pass data through the filterProperties function
 	const selection = filterData? data.map(filterProperties) : data//.slice(0,10)
 	
 	selection.forEach( (item, index) => {
@@ -38,14 +40,17 @@ function parseData(source){
 		return item
 	}
 
-	const transformed = selection.map(item => {
+	selection.forEach(item => {
 		//console.log("mapping item", item.id)
-		item.huidigeLocatie = geolocation.obfuscateLocation(item.huidigeLocatie)
-		item.geboortePlaats = geolocation.obfuscateLocation(item.geboortePlaats)
+		if (item.huidigeLocatie){
+			item.huidigeLocatie = geolocation.obfuscateLocation(item.huidigeLocatie)
+		}
+		if (item.geboortePlaats){
+			item.geboortePlaats = geolocation.obfuscateLocation(item.geboortePlaats)
+		}
 		//console.log(item.huidigeLocatie)
-		return item
 	})
-	writeDataFile(transformed)
+	writeDataFile(selection)
 }
 
 function writeDataFile(data)
@@ -64,8 +69,6 @@ function writeDataFile(data)
 }
 
 function filterProperties(item){
-	console.log("filtering")
-
 	return {
 		voorkeuren: item["Waar liggen je (CMD) voorkeuren?"],
 		alcohol: item["Hoeveel glazen alcohol drink je per week?"]
