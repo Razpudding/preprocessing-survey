@@ -6,13 +6,14 @@ let fileName = 'output/jsonData'
 let fileIndex = 0
 
 const filterData = false;
+const removeResidenceData = false;
 
 loadFile()
 
 function loadFile(){
 	fs.readFile("input/rawData.csv", {encoding: 'utf-8'}, function(err,data){
 	    if (!err) {
-	        //console.log('received data: ' + data);
+	        // console.log('received data: ' + data);
 	        parseData(data)
 	    } else {
 	        console.log(err);
@@ -24,8 +25,9 @@ function parseData(source){
 	const data = d3.csvParse(source)
 	console.log("#Entries in data: ", data.length)
 	//If filtering is on, pass data through the filterProperties function
-	const selection = filterData? data.map(filterProperties) : data//.slice(0,10)
+	let selection = filterData ? data.map(filterProperties) : data//.slice(0,10)
 	
+	//You can make this script more functional by putting this pattern in a function
 	selection.forEach( (item, index) => {
 		item.id = index
 		item.huidigeLocatie = item["Woonplaats: plak GPS locatie uit google maps (instructie hier: https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398 )"]
@@ -34,6 +36,9 @@ function parseData(source){
 		delete item['Geboorteplaats (plak GPS locatie)']
 	})
 
+	//If removeResidenceData is on, call removePlaceOfResidence, if not, keep the data as it is
+	selection = removeResidenceData ? selection.map(removePlaceOfResidence) : selection
+	
 	//Function to remove place of residence entirely
 	function removePlaceOfResidence(item){
 		item.huidigeLocatie = null
@@ -53,6 +58,9 @@ function parseData(source){
 	writeDataFile(selection)
 }
 
+//Notice that this function checks if a filename exists and if it does it calls itself again
+// But this time the fileIndex is increased. This makes the function recursive.
+// There are btter ways of doing this.
 function writeDataFile(data)
 {
 	fs.writeFile(fileName +"_"+ fileIndex +".json", JSON.stringify(data, null, 4), {encoding:'utf8', flag:'wx'}, function (err) {

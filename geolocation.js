@@ -3,11 +3,13 @@ exports.obfuscateLocation = function(rawLocation){
 	let location = determineLocationType(rawLocation)
 
 	if (location.type == "DMS"){
-		location.obfuscated = location.raw.replace(/'[^"]*/g, "'0")	//Change everything after ' but before " to '0
+		//Change everything after ' but before " to '0
+		location.obfuscated = location.raw.replace(/'[^"]*/g, "'0")
 	} else if (location.type == "DD"){
 		let latlong = location.raw.split(",")
-		location.obfuscated = latlong[0].substring(0, latlong[0].indexOf(".")+3) + "," +
-		latlong[1].substring(0, latlong[1].indexOf(".")+3)	//basically shorten the lat and long to be less precise
+		location.obfuscated = latlong[0].substring(0, latlong[0].indexOf(".") + 3) + "," +
+		//shorten the lat and long to be less precise for privacy purposes
+		latlong[1].substring(0, latlong[1].indexOf(".") + 3)	
 	} else if (location.type == "INVALID"){
 		location.obfuscated = -1
 	}
@@ -24,7 +26,7 @@ exports.obfuscateLocation = function(rawLocation){
 	//	If none of those tests succeed, the location type is deemed invalid.
 function determineLocationType (rawLocation){
 	let location = {
-		//Remove "(" and ")"
+		//Remove "(" and ")" if rawLocation is not undefined, if it is, return an empty string
 		raw: rawLocation ? rawLocation.replace(/[\(\)]/g,""): "",	
 		type: "INVALID"
 	}
@@ -48,4 +50,6 @@ function determineLocationType (rawLocation){
 }
 
 //Helper function found at https://stackoverflow.com/a/1421988/5440366
-function isNumber(n) { return !isNaN(parseFloat(n)) && !isNaN(n - 0) }
+function isNumber(n) { 
+	return !isNaN(parseFloat(n)) && !isNaN(n - 0) 
+}
