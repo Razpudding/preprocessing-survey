@@ -2,18 +2,20 @@ const fs = require('fs')
 const d3 = require('d3-dsv')
 const geolocation = require('./geolocation.js')
 
-let fileName = 'output/jsonData'
-let fileIndex = 0
-
-const filterData = false;
-const removeResidenceData = false;
+//This settigns object controls the global settings for this programme
+const settings = {
+	fileName: 'output/jsonData',
+	filterData: false,
+	removeResidenceData: false
+}
 
 loadFile()
 
+//Load a file using the fs package, then call parseData
 function loadFile(){
 	fs.readFile("input/rawData.csv", {encoding: 'utf-8'}, function(err,data){
 	    if (!err) {
-	        // console.log('received data: ' + data);
+	        // console.log('received data items: ' + data.length);
 	        parseData(data)
 	    } else {
 	        console.log(err);
@@ -21,11 +23,13 @@ function loadFile(){
 	})
 }
 
+//Parsedata takes a source and manipulates it the way we want it
 function parseData(source){
+	//First let's convert the data to JSON using d3.csvParse
 	const data = d3.csvParse(source)
 	console.log("#Entries in data: ", data.length)
 	//If filtering is on, pass data through the filterProperties function
-	let selection = filterData ? data.map(filterProperties) : data//.slice(0,10)
+	let selection = settings.filterData ? data.map(filterProperties) : data//.slice(0,10)
 	
 	//You can make this script more functional by putting this pattern in a function
 	selection.forEach( (item, index) => {
@@ -37,7 +41,7 @@ function parseData(source){
 	})
 
 	//If removeResidenceData is on, call removePlaceOfResidence, if not, keep the data as it is
-	selection = removeResidenceData ? selection.map(removePlaceOfResidence) : selection
+	selection = settings.removeResidenceData ? selection.map(removePlaceOfResidence) : selection
 	
 	//Function to remove place of residence entirely
 	function removePlaceOfResidence(item){
@@ -59,15 +63,18 @@ function parseData(source){
 }
 
 //Notice that this function checks if a filename exists and if it does it calls itself again
-// But this time the fileIndex is increased. This makes the function recursive.
-// There are btter ways of doing this.
-function writeDataFile(data)
+// But this time the index is increased. This makes the function recursive.
+// We can make this possible without using an outside variable by using a ES6 feature called default
+// parameter. Each time we call the function we iterate index (BEFORE THE FUNCTION IS CALLED)
+function writeDataFile(data, fileIndex = 0)
 {
-	fs.writeFile(fileName +"_"+ fileIndex +".json", JSON.stringify(data, null, 4), {encoding:'utf8', flag:'wx'}, function (err) {
+	fs.writeFile(settings.fileName +"_"+ fileIndex +".json",
+				JSON.stringify(data, null, 4),
+				{ encoding:'utf8', flag:'wx' },
+				function (err) {
 	    //Check if filename already exists, if it does, increase the number at the end by 1
 	    if (err && err.code == "EEXIST") {	
-	    	fileIndex ++
-	    	writeDataFile(data)
+	    	writeDataFile(data, ++fileIndex)
 	    } else if(err){
 	        return console.log(err)
 	    } else {
@@ -76,6 +83,8 @@ function writeDataFile(data)
 	})
 }
 
+//This function is used to only return properties we want in the output
+// And to rename them to more usable properties.
 function filterProperties(item){
 	return {
 		voorkeuren: item["Waar liggen je (CMD) voorkeuren?"],
