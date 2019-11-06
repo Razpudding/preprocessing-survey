@@ -1,8 +1,23 @@
 # Processing survey data
 
-## Usage
+## Functionality
 I wrote this code to use it in an upcoming course at the Hogeschool van Amsterdam. It converts student survey data (not included in this repo for privacy reasons) from csv to json.
 It also uses the module `geolocation` to anonymize geolocation data.
+
+## Install instructions
+```bash
+## Clone this repo to your local environment
+
+## Install dependencies
+npm install
+
+## Create a folder called 'input' and a folder called 'output'
+## Put csv surveydata into the input folder
+## Optional: Change the settings object in the preprocessing.js file
+node preprocessing.js
+
+## Check the output in the 'output' folder
+```
 
 ## Steps to take
 - [x] Read in csv, output json

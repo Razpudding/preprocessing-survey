@@ -30,6 +30,7 @@ function determineLocationType (rawLocation){
 		raw: rawLocation ? rawLocation.replace(/[\(\)]/g,""): "",	
 		type: "INVALID"
 	}
+	//TODO: Check if this code actually runs, look like it won't
 	if (location.raw === null){
 		return location
 	}
