@@ -1,11 +1,13 @@
 const fs = require('fs')
-const d3 = require('d3-dsv')
+const d3Dsv = require('d3-dsv')
+const d3Array = require('d3-array')
+
 const geolocation = require('./geolocation.js')
 
 //This settigns object controls the global settings for this programme
 const settings = {
 	fileName: 'output/jsonData',
-	filterData: false,
+	filterData: true,
 	removeResidenceData: false
 }
 
@@ -25,8 +27,8 @@ function loadFile(){
 
 //Parsedata takes a source and manipulates it the way we want it
 function parseData(source){
-	//First let's convert the data to JSON using d3.csvParse
-	const data = d3.csvParse(source)
+	//First let's convert the data to JSON using d3.csvParse and shuffle it to help with anonymity
+	const data = d3Array.shuffle(d3Dsv.csvParse(source))
 	console.log("#Entries in data: ", data.length)
 	//If filtering is on, pass data through the filterProperties function
 	let selection = settings.filterData ? data.map(filterProperties) : data//.slice(0,10)
@@ -78,7 +80,7 @@ function writeDataFile(data, fileIndex = 0)
 	    } else if(err){
 	        return console.log(err)
 	    } else {
-	    	console.log("The file was saved!")
+	    	console.log("The file was saved!", (settings.fileName +"_"+ fileIndex +".json"))
 	    }
 	})
 }
@@ -87,7 +89,14 @@ function writeDataFile(data, fileIndex = 0)
 // And to rename them to more usable properties.
 function filterProperties(item){
 	return {
-		voorkeuren: item["Waar liggen je (CMD) voorkeuren?"],
-		alcohol: item["Hoeveel glazen alcohol drink je per week?"]
+		gender: item["Gender"],
+		brothers: item["Hoeveel broers heb je?"],
+		sisters: item["Hoeveel zussen heb je?"],
+		height: item["Wat is je lengte? (in centimeters)"],
+		license: item["Heb je een rijbewijs?"],
+		health: item["Welk cijfer geef je je gezondheid?"],
+		stress: item["Geef een cijfer aan je stressniveau (1-10)"],
+		preference: item["Waar liggen je (CMD) voorkeuren?"],
+		biggestExpense: item["Hoogste bedrag dat je ooit aan iets hebt uitgegeven"]
 	}
 }

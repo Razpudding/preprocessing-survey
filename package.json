@@ -4,6 +4,7 @@
   "description": "",
   "main": "preprocessing.js",
   "dependencies": {
+    "d3-array": "^2.4.0",
     "d3-dsv": "^1.1.1"
   },
   "devDependencies": {},
